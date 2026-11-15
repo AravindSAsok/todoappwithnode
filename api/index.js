@@ -8,10 +8,14 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import Todo from "./models/Todo.js";
 
-const secret = 'secret123';
+const secret = process.env.JWT_SECRET;
+const mongoUri = process.env.MONGODB_URI;
+if (!secret || !mongoUri) {
+  throw new Error('MONGODB_URI and JWT_SECRET must be configured in the environment.');
+}
 
 // await mongoose.connect('mongodb://localhost:27017/auth-todo', {useNewUrlParser:true, useUnifiedTopology:true});
-await mongoose.connect('mongodb+srv://user1323:passwordofuser1323@cluster0.w7szsjl.mongodb.net/?retryWrites=true&w=majority', {useNewUrlParser:true, useUnifiedTopology:true});
+await mongoose.connect(mongoUri);
 const db = mongoose.connection;
 db.on('error', console.log);
 
@@ -20,7 +24,7 @@ app.use(cookieParser());
 app.use(bodyParser.json({extended:true}));
 app.use(cors({
   credentials:true,
-  origin: 'http://localhost:3000',
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
 }));
 
 app.get('/', (req, res) => {
